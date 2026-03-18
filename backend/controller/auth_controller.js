@@ -1,6 +1,8 @@
 import user_model from "../models/user_model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import sendEmail from "../utils/sendEmail.js";
 export const tokenBlacklist = new Set();
 const register = async (req, res) => {
     try {
@@ -18,11 +20,24 @@ const register = async (req, res) => {
                 message: "User already exists"
             })
         }
+        const token = crypto.randomBytes(32).toString("hex");
         const user = await user_model.create({
             name,
             email,
-            password
+            password,
+            verificationToken: token
         });
+        const verifyUrl = `http://localhost:8000/auth/verify/${token}`;
+        await sendEmail({
+            email: user.email,
+            subject: "Verify your Email",
+            message: `
+                <h2>Email Verification</h2>
+                <p>Click below to verify your email:</p>
+                <a href="${verifyUrl}">Verify Email</a>
+            `
+        });
+
         res.status(201).json({
             success: true,
             message: "User registered successfully",
@@ -37,6 +52,34 @@ const register = async (req, res) => {
         })
     }
 }
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const user = await user_model.findOne({ verificationToken: token });
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid or expired token"
+            });
+        }
+        user.isVerified = true;
+        user.verificationToken = undefined;
+
+        await user.save();
+
+        res.json({
+            success: true,
+            message: "Email verified successfully"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -53,6 +96,12 @@ const login = async (req, res) => {
                 message: "User not found"
             })
         }
+        if (!user.isVerified) {
+            return res.status(403).json({
+                success: false,
+                message: "Please verify your email first"
+            });
+        }
         const passwordmatch = await bcrypt.compare(password, user.password);
         if (!passwordmatch) {
             return res.status(400).json({
@@ -65,6 +114,7 @@ const login = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
+        user.password = undefined;
         res.status(200).json({
             success: true,
             message: "Login successful",
@@ -130,4 +180,4 @@ const currentUser = async (req, res) => {
         })
     }
 }
-export { register, login, logout, currentUser };
+export { register, login, logout, currentUser,verifyEmail};

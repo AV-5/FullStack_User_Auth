@@ -28,15 +28,34 @@ const register = async (req, res) => {
             verificationToken: token
         });
         const verifyUrl = `http://localhost:8000/auth/verify/${token}`;
-        await sendEmail({
-            email: user.email,
-            subject: "Verify your Email",
-            message: `
-                <h2>Email Verification</h2>
-                <p>Click below to verify your email:</p>
-                <a href="${verifyUrl}">Verify Email</a>
-            `
-        });
+
+await sendEmail({
+  email: user.email,
+  subject: "Verify your Email",
+  message: `
+  <div style="font-family: Arial, sans-serif; max-width:500px; margin:auto; padding:20px; border:1px solid #eee; border-radius:8px;">
+    
+    <h2 style="color:#333;">Verify Your Email</h2>
+
+    <p style="color:#555;">
+      Thanks for signing up! Please verify your email by clicking the button below:
+    </p>
+
+    <div style="text-align:center; margin:20px 0;">
+      <a href="${verifyUrl}" 
+         style="background:#4CAF50; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">
+        Verify Email
+      </a>
+    </div>
+
+    <p style="font-size:14px; color:#777;">
+      If the button doesn't work, use this link:<br/>
+      <a href="${verifyUrl}">${verifyUrl}</a>
+    </p>
+
+  </div>
+  `
+});
 
         res.status(201).json({
             success: true,
@@ -68,10 +87,29 @@ const verifyEmail = async (req, res) => {
 
         await user.save();
 
-        res.json({
-            success: true,
-            message: "Email verified successfully"
-        });
+        res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Email Verified</title>
+</head>
+<body style="font-family:Arial; background:#f4f4f4; display:flex; justify-content:center; align-items:center; height:100vh;">
+
+  <div style="background:white; padding:30px; border-radius:10px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+    
+    <h2 style="color:green;">Email Verified</h2>
+    <p>Your email has been successfully verified.</p>
+
+    <a href="http://localhost:3000/login"
+       style="display:inline-block; margin-top:15px; padding:10px 20px; background:#4CAF50; color:white; text-decoration:none; border-radius:5px;">
+       Go to Login
+    </a>
+
+  </div>
+
+</body>
+</html>
+`);
 
     } catch (error) {
         res.status(500).json({

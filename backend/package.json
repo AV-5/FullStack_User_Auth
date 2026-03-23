@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "taskmanager backend",
+  "description": "User auth backend",
   "main": "index.js",
   "type": "module",
   "scripts": {

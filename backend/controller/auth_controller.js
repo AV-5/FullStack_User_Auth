@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config({ path: "./.env" });
 import user_model from "../models/user_model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -27,7 +29,7 @@ const register = async (req, res) => {
             password,
             verificationToken: token
         });
-        const verifyUrl = `http://localhost:8000/auth/verify/${token}`;
+        const verifyUrl = `${process.env.BASE_URL}/auth/verify/${token}`;
 
 await sendEmail({
   email: user.email,

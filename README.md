@@ -81,12 +81,13 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 
 # Email (Mailtrap or SMTP)
+
 MAIL_HOST=smtp.mailtrap.io
 MAIL_PORT=2525
 MAIL_USER=your_mail_user
 MAIL_PASS=your_mail_password
 
-Running the Server
+Running the Server-
 npm run dev
 
 Server will run on:

@@ -95,7 +95,7 @@ http://localhost:8000
 
 API Endpoints-
 Authentication Routes
-#Register User
+#Register User -
 POST /auth/register
 Description: Register a new user and send verification email
 Request Body:

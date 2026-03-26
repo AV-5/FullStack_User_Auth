@@ -53,6 +53,7 @@ export default function Login() {
           <a href="/register" className="text-blue-400 hover:text-blue-300 font-medium">
             Register
           </a>
+          
         </p>
 
       </div>
